@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JS CREACIONES | Arreglos • Rosas Eternas • Flores • Globos</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandDark: '#0A0A0C',
+                        brandCard: '#141418',
+                        brandAccent: '#E91E63',
+                        brandGold: '#FFC107',
+                        brandBlue: '#00BCD4'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Leaflet / Google Hybrid Map Engine -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #000000;
+            color: #FFFFFF;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .glow-pink {
+            box-shadow: 0 0 15px rgba(233, 30, 99, 0.35);
+        }
+
+        .border-pink-glow {
+            border: 1px solid rgba(233, 30, 99, 0.5);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0A0A0C;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E91E63;
+            border-radius: 4px;
+        }
+
+        /* Leaflet Dark Custom Map Overlay */
+        .leaflet-container {
+            border-radius: 1rem;
+            background: #1e1e24;
+        }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen pb-24">
+
+    <!-- APP HEADER WITH LOGO -->
+    <header class="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-gray-800 py-3 px-4 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <!-- 100% REPLICATED JS CREACIONES LOGO SVG -->
+            <div class="w-14 h-14 rounded-full bg-black p-0.5 border-2 border-white relative flex-shrink-0 flex items-center justify-center shadow-lg">
+                <svg viewBox="0 0 200 200" class="w-full h-full">
+                    <!-- Outer dotted border -->
+                    <circle cx="100" cy="100" r="95" fill="black" stroke="white" stroke-width="3" />
+                    <circle cx="100" cy="100" r="88" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="3,3" />
+                    <!-- Inner Circle -->
+                    <circle cx="100" cy="100" r="78" fill="none" stroke="white" stroke-width="2" />
+                    <circle cx="100" cy="100" r="74" fill="none" stroke="white" stroke-width="1" stroke-dasharray="2,2" />
+                    
+                    <!-- Balloons -->
+                    <g transform="translate(100, 38)">
+                        <!-- Yellow Balloon -->
+                        <path d="M-12,-2 C-18,-15 -5,-25 0,-20 C5,-15 -2,-2 -12,-2 Z" fill="#FFC107" transform="rotate(-15)"/>
+                        <!-- Pink Balloon -->
+                        <path d="M-2,-12 C-8,-25 8,-32 12,-22 C16,-12 6,-2 -2,-12 Z" fill="#E91E63" />
+                        <!-- Blue Balloon -->
+                        <path d="M8,-2 C2,-15 15,-25 20,-18 C25,-10 16,-2 8,-2 Z" fill="#00BCD4" transform="rotate(15)"/>
+                    </g>
+                    
+                    <!-- JS Monogram Text -->
+                    <text x="70" y="115" font-family="'Georgia', serif" font-size="75" font-weight="bold" fill="white" text-anchor="middle">J</text>
+                    <text x="125" y="125" font-family="'Georgia', serif" font-size="75" font-weight="bold" fill="white" text-anchor="middle">S</text>
+                    
+                    <!-- CREACIONES Curved Bottom Text -->
+                    <path id="textPath" d="M 35,120 A 70,70 0 0,0 165,120" fill="none" />
+                    <text font-family="'Poppins', sans-serif" font-size="16" font-weight="900" fill="white" letter-spacing="3">
+                        <textPath href="#textPath" startOffset="50%" text-anchor="middle">
+                            CREACIONES
+                        </textPath>
+                    </text>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-xs md:text-sm font-extrabold tracking-wider text-white">JS CREACIONES</h1>
+                <p class="text-[10px] text-pink-400 font-medium">Arreglos • Rosas Eternas • Flores • Globos</p>
+            </div>
+        </div>
+
+        <button onclick="toggleAdminAuthModal()" id="adminNavBtn" class="bg-gray-900 hover:bg-gray-800 text-gray-300 text-xs px-3 py-2 rounded-lg border border-gray-700 flex items-center space-x-1 transition">
+            <i class="fas fa-lock text-pink-500"></i>
+            <span id="adminBtnLabel">Admin</span>
+        </button>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-md mx-auto p-4 space-y-6">
+
+        <!-- BANNER DE BIENVENIDA -->
+        <div class="bg-gradient-to-r from-pink-900/40 via-purple-900/30 to-black p-4 rounded-2xl border border-pink-500/30 text-center">
+            <h2 class="text-lg font-extrabold text-white">Haz tus momentos inolvidables ✨</h2>
+            <p class="text-xs text-gray-300 mt-1">Selecciona tus detalles favoritos y ubica tu entrega manualmente o por GPS en el mapa.</p>
+        </div>
+
+        <!-- CATALOGO DE PRODUCTOS -->
+        <section>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm font-bold uppercase tracking-widest text-pink-500 flex items-center gap-2">
+                    <i class="fas fa-gift"></i> Catálogo de Detalles
+                </h3>
+                <span id="adminAddProductBtn" class="hidden">
+                    <button onclick="openProductModal()" class="bg-pink-600 hover:bg-pink-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-lg">
+                        + Agregar
+                    </button>
+                </span>
+            </div>
+
+            <!-- Product Grid -->
+            <div id="productGrid" class="grid grid-cols-2 gap-3">
+                <!-- Dynamic Items Inserted via JS -->
+            </div>
+        </section>
+
+        <!-- SECCION DE UBICACION MAPA GPS Y MANUAL -->
+        <section class="bg-brandCard p-4 rounded-2xl border border-gray-800 shadow-xl space-y-3">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-pink-500 flex items-center gap-2">
+                    <i class="fas fa-map-marked-alt text-yellow-400"></i> Ubicación para Delivery
+                </h3>
+                <span class="text-[10px] bg-pink-950 text-pink-300 border border-pink-800 px-2 py-0.5 rounded-full">GPS & Manual</span>
+            </div>
+
+            <p class="text-xs text-gray-400">
+                Puedes presionar el botón GPS o <b>tocar/arrastrar el marcador directamente en el mapa</b> para seleccionar tu dirección exacta:
+            </p>
+
+            <!-- Search input for manual address -->
+            <div class="relative">
+                <input type="text" id="mapSearchInput" placeholder="Escribe tu referencia o dirección manual..." 
+                       class="w-full bg-black/80 border border-gray-700 text-xs text-white rounded-xl py-2.5 pl-9 pr-20 focus:outline-none focus:border-pink-500">
+                <i class="fas fa-search absolute left-3 top-3 text-gray-500 text-xs"></i>
+                <button onclick="searchManualAddress()" class="absolute right-1 top-1 bg-pink-600 hover:bg-pink-500 text-white text-[10px] font-semibold px-2.5 py-1.5 rounded-lg">
+                    Buscar
+                </button>
+            </div>
+
+            <!-- Interactive Map Display -->
+            <div id="map" class="w-full h-52 rounded-xl border border-gray-800 relative z-0"></div>
+
+            <div class="flex items-center justify-between gap-2 pt-1">
+                <button onclick="getUserGPSLocation()" class="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs py-2 px-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md">
+                    <i class="fas fa-crosshairs"></i> Mi Ubicación GPS
+                </button>
+            </div>
+
+            <!-- Coordinates & Address Output -->
+            <div class="bg-black/60 p-3 rounded-xl border border-gray-800 text-xs space-y-1">
+                <div class="flex justify-between text-gray-400">
+                    <span>Coordenadas seleccionadas:</span>
+                    <span id="gpsStatusBadge" class="text-pink-400 font-mono">Manual / Mapa</span>
+                </div>
+                <div id="selectedCoords" class="text-white font-mono text-[11px] truncate">
+                    Lat: 10.4806, Lng: -66.9036
+                </div>
+                <input type="hidden" id="customerLat" value="10.4806">
+                <input type="hidden" id="customerLng" value="-66.9036">
+            </div>
+
+            <!-- Zone & Delivery Price Calculation -->
+            <div>
+                <label class="block text-xs font-semibold text-gray-300 mb-1">Zona de Cobertura Delivery:</label>
+                <select id="deliveryZoneSelect" onchange="calculateCartTotals()" class="w-full bg-black border border-gray-700 text-xs text-white rounded-xl p-2.5 focus:border-pink-500 outline-none">
+                    <!-- Dynamic zones loaded from JS -->
+                </select>
+            </div>
+        </section>
+
+        <!-- FORMULARIO DATOS DEL CLIENTE -->
+        <section class="bg-brandCard p-4 rounded-2xl border border-gray-800 shadow-xl space-y-3">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-pink-500 flex items-center gap-2">
+                <i class="fas fa-user-edit"></i> Datos para Recepción
+            </h3>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="text-[11px] text-gray-400 block mb-1">Nombre</label>
+                    <input type="text" id="custName" placeholder="Tu Nombre" class="w-full bg-black border border-gray-700 text-xs rounded-xl p-2.5 text-white focus:border-pink-500 outline-none">
+                </div>
+                <div>
+                    <label class="text-[11px] text-gray-400 block mb-1">Apellido</label>
+                    <input type="text" id="custLastName" placeholder="Tu Apellido" class="w-full bg-black border border-gray-700 text-xs rounded-xl p-2.5 text-white focus:border-pink-500 outline-none">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-[11px] text-gray-400 block mb-1">Número de Teléfono</label>
+                <input type="tel" id="custPhone" placeholder="0412-0000000" class="w-full bg-black border border-gray-700 text-xs rounded-xl p-2.5 text-white focus:border-pink-500 outline-none">
+            </div>
+
+            <div>
+                <label class="text-[11px] text-gray-400 block mb-1">Punto de Referencia / Dirección Escrita</label>
+                <textarea id="custAddressNote" rows="2" placeholder="Casa, Edificio, Apartamento o Punto de referencia cercano..." class="w-full bg-black border border-gray-700 text-xs rounded-xl p-2.5 text-white focus:border-pink-500 outline-none"></textarea>
+            </div>
+        </section>
+
+        <!-- PAGO MOVIL INFORMACION DE CUENTAS -->
+        <section class="bg-brandCard p-4 rounded-2xl border border-gray-800 shadow-xl space-y-3">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-pink-500 flex items-center gap-2">
+                    <i class="fas fa-mobile-alt text-cyan-400"></i> Cuentas Pago Móvil
+                </h3>
+                <span class="text-[10px] bg-cyan-950 text-cyan-300 border border-cyan-800 px-2 py-0.5 rounded-full">2 Cuentas</span>
+            </div>
+
+            <div class="grid grid-cols-1 gap-3" id="pagoMovilCardsContainer">
+                <!-- Rendered dynamically -->
+            </div>
+        </section>
+
+        <!-- CART SUMMARY & WHATSAPP DISPATCH -->
+        <section class="bg-gradient-to-b from-brandCard to-black p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-pink-500 flex items-center justify-between">
+                <span><i class="fas fa-shopping-cart"></i> Resumen de Pedido</span>
+                <span id="cartCountBadge" class="bg-pink-600 text-white text-xs px-2 py-0.5 rounded-full">0 items</span>
+            </h3>
+
+            <div id="cartItemsList" class="space-y-2 max-h-40 overflow-y-auto text-xs divide-y divide-gray-800">
+                <p class="text-gray-500 text-center py-4">No has seleccionado artículos.</p>
+            </div>
+
+            <div class="border-t border-gray-800 pt-3 space-y-1 text-xs">
+                <div class="flex justify-between text-gray-400">
+                    <span>Subtotal Artículos:</span>
+                    <span id="summarySubtotal">$0.00</span>
+                </div>
+                <div class="flex justify-between text-gray-400">
+                    <span>Costo Delivery:</span>
+                    <span id="summaryDeliveryCost">$0.00</span>
+                </div>
+                <div class="flex justify-between text-sm font-bold text-white pt-2 border-t border-gray-800">
+                    <span class="text-pink-400">TOTAL ESTIMADO:</span>
+                    <span id="summaryTotal" class="text-yellow-400 text-base">$0.00</span>
+                </div>
+            </div>
+
+            <button onclick="sendOrderToWhatsApp()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg flex items-center justify-center space-x-2 text-sm transition">
+                <i class="fab fa-whatsapp text-lg"></i>
+                <span>Enviar Pedido por WhatsApp</span>
+            </button>
+        </section>
+
+        <!-- REDES SOCIALES / ENLACES OFICIALES -->
+        <section class="bg-black/80 border border-gray-800 p-4 rounded-2xl text-center space-y-3">
+            <p class="text-xs text-gray-400 font-semibold tracking-wide uppercase">Síguenos en nuestras Redes Sociales</p>
+            <div class="flex justify-center space-x-4">
+                <a href="https://www.instagram.com/jotaesecreaciones/" target="_blank" class="w-12 h-12 rounded-full bg-gradient-to-tr from-yellow-500 via-pink-500 to-purple-600 p-0.5 flex items-center justify-center hover:scale-110 transition shadow-lg">
+                    <div class="w-full h-full bg-black rounded-full flex items-center justify-center">
+                        <i class="fab fa-instagram text-xl text-pink-500"></i>
+                    </div>
+                </a>
+                <a href="https://www.facebook.com/search/top?q=jota%20creaciones" target="_blank" class="w-12 h-12 rounded-full bg-blue-600 p-0.5 flex items-center justify-center hover:scale-110 transition shadow-lg">
+                    <div class="w-full h-full bg-black rounded-full flex items-center justify-center">
+                        <i class="fab fa-facebook-f text-xl text-blue-500"></i>
+                    </div>
+                </a>
+            </div>
+            <p class="text-[11px] text-gray-500">JS CREACIONES © Todos los derechos reservados</p>
+        </section>
+
+        <!-- SECCION PANEL DE ADMINISTRADOR (EXCLUSIVO Y PROTEGIDO) -->
+        <section id="adminSection" class="hidden bg-gray-900 border border-pink-600 p-4 rounded-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                <h3 class="text-sm font-bold text-pink-500 flex items-center gap-2">
+                    <i class="fas fa-user-shield"></i> Panel de Administración Exclusivo
+                </h3>
+                <button onclick="logoutAdmin()" class="text-xs bg-red-900/60 hover:bg-red-800 text-red-200 px-2.5 py-1 rounded-lg border border-red-700">
+                    Cerrar Sesión
+                </button>
+            </div>
+
+            <!-- Tabla de Registros de Clientes -->
+            <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <h4 class="text-xs font-bold text-gray-300 uppercase">Tabla de Pedidos y Clientes</h4>
+                    <button onclick="clearOrdersTable()" class="text-[10px] text-red-400 hover:underline">Limpiar Registros</button>
+                </div>
+                <div class="overflow-x-auto rounded-xl border border-gray-800">
+                    <table class="w-full text-[11px] text-left text-gray-300">
+                        <thead class="bg-black text-pink-400 uppercase text-[10px]">
+                            <tr>
+                                <th class="p-2">Fecha</th>
+                                <th class="p-2">Cliente</th>
+                                <th class="p-2">Teléfono</th>
+                                <th class="p-2">GPS Link</th>
+                                <th class="p-2">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminOrdersTableBody" class="divide-y divide-gray-800 bg-brandCard">
+                            <!-- Filled dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Modificación de Cuentas Pago Móvil -->
+            <div class="space-y-3 pt-2 border-t border-gray-800">
+                <h4 class="text-xs font-bold text-gray-300 uppercase">Editar Cuentas de Pago Móvil</h4>
+                
+                <div class="bg-black/60 p-3 rounded-xl border border-gray-800 space-y-2">
+                    <p class="text-xs font-bold text-pink-400">Pago Móvil 1</p>
+                    <input type="text" id="adminPm1Bank" placeholder="Banco" class="w-full bg-brandCard border border-gray-700 text-xs p-2 rounded text-white">
+                    <input type="text" id="adminPm1Phone" placeholder="Teléfono" class="w-full bg-brandCard border border-gray-700 text-xs p-2 rounded text-white">
+                    <input type="text" id="adminPm1Id" placeholder="Cédula / RIF" class="w-full bg-brandCard border border-gray-700 text-xs p-2 rounded text-white">
+                </div>
+
+                <div class="bg-black/60 p-3 rounded-xl border border-gray-800 space-y-2">
+                    <p class="text-xs font-bold text-cyan-400">Pago Móvil 2</p>
+                    <input type="text" id="adminPm2Bank" placeholder="Banco" class="w-full bg-brandCard border border-gray-700 text-xs p-2 rounded text-white">
+                    <input type="text" id="adminPm2Phone" placeholder="Teléfono" class="w-full bg-brandCard border border-gray-700 text-xs p-2 rounded text-white">
+                    <input type="text" id="adminPm2Id" placeholder="Cédula / RIF" class="w-full bg-brandCard border border-gray-700 text-xs p-2 rounded text-white">
+                </div>
+
+                <button onclick="saveAdminPagoMovil()" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-2 rounded-xl text-xs">
+                    Guardar Cambios de Pago Móvil
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL AUTENTICACION ADMIN -->
+    <div id="adminAuthModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-brandCard border border-pink-500/50 rounded-2xl p-6 w-full max-w-xs space-y-4 shadow-2xl text-center">
+            <div class="w-12 h-12 bg-pink-950 text-pink-400 rounded-full flex items-center justify-center mx-auto border border-pink-700 text-xl">
+                <i class="fas fa-user-lock"></i>
+            </div>
+            <h3 class="text-sm font-bold text-white uppercase">Acceso Administrador Exclusivo</h3>
+            <p class="text-xs text-gray-400">Introduce la clave PIN de seguridad de JS Creaciones:</p>
+            <input type="password" id="adminPinInput" maxlength="6" placeholder="PIN de Seguridad" class="w-full text-center tracking-widest text-lg bg-black border border-gray-700 rounded-xl p-2.5 text-white focus:border-pink-500 outline-none">
+            <div class="flex space-x-2">
+                <button onclick="toggleAdminAuthModal()" class="w-1/2 bg-gray-800 hover:bg-gray-700 text-gray-300 py-2 rounded-xl text-xs">Cancelar</button>
+                <button onclick="verifyAdminPin()" class="w-1/2 bg-pink-600 hover:bg-pink-500 text-white font-bold py-2 rounded-xl text-xs">Entrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL AGREGAR / EDITAR PRODUCTO (ADMIN) -->
+    <div id="productEditModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-brandCard border border-gray-700 rounded-2xl p-5 w-full max-w-sm space-y-3 shadow-2xl">
+            <h3 class="text-sm font-bold text-pink-500" id="modalProductTitle">Agregar Nuevo Producto</h3>
+            <input type="hidden" id="editProductId">
+
+            <div>
+                <label class="text-[11px] text-gray-400 block mb-1">Nombre del Artículo</label>
+                <input type="text" id="prodTitle" placeholder="Ej: Arreglo de Rosas Eternas" class="w-full bg-black border border-gray-700 text-xs rounded-xl p-2 text-white outline-none focus:border-pink-500">
+            </div>
+
+            <div>
+                <label class="text-[11px] text-gray-400 block mb-1">Precio ($ USD)</label>
+                <input type="number" step="0.01" id="prodPrice" placeholder="25.00" class="w-full bg-black border border-gray-700 text-xs rounded-xl p-2 text-white outline-none focus:border-pink-500">
+            </div>
+
+            <div>
+                <label class="text-[11px] text-gray-400 block mb-1">Enlace de Imagen o Video (URL)</label>
+                <input type="url" id="prodMediaUrl" placeholder="https://... (JPG, PNG, MP4 o YouTube)" class="w-full bg-black border border-gray-700 text-xs rounded-xl p-2 text-white outline-none focus:border-pink-500">
+            </div>
+
+            <div>
+                <label class="text-[11px] text-gray-400 block mb-1">Tipo de Multimedia</label>
+                <select id="prodMediaType" class="w-full bg-black border border-gray-700 text-xs rounded-xl p-2 text-white outline-none">
+                    <option value="image">Imagen Directa</option>
+                    <option value="video">Video MP4 Directo / YouTube</option>
+                </select>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeProductModal()" class="w-1/2 bg-gray-800 text-gray-300 py-2 rounded-xl text-xs">Cancelar</button>
+                <button onclick="saveProductFromModal()" class="w-1/2 bg-pink-600 text-white font-bold py-2 rounded-xl text-xs">Guardar Artículo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        // CONFIG & INITIAL STATE
+        const ADMIN_PIN = "1234";
+        let isAdminLoggedIn = false;
+        let map, marker;
+
+        // DATA STORES WITH LOCALSTORAGE FALLBACK
+        let products = JSON.parse(localStorage.getItem('js_products')) || [
+            { id: '1', title: 'Rosas Eternas Premium', price: 25.00, mediaUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=500&q=80', mediaType: 'image' },
+            { id: '2', title: 'Arreglo de Globos Especial', price: 18.50, mediaUrl: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=500&q=80', mediaType: 'image' },
+            { id: '3', title: 'Caja Floral Sorpresa', price: 30.00, mediaUrl: 'https://images.unsplash.com/photo-1563241527-3004b7be0ffd?auto=format&fit=crop&w=500&q=80', mediaType: 'image' }
+        ];
+
+        let pagoMovilData = JSON.parse(localStorage.getItem('js_pago_movil')) || {
+            pm1: { bank: 'Banesco (0134)', phone: '0412-1234567', id: 'V-18765432' },
+            pm2: { bank: 'Mercantil (0105)', phone: '0414-9876543', id: 'J-500123456' }
+        };
+
+        let deliveryZones = JSON.parse(localStorage.getItem('js_delivery_zones')) || [
+            { name: 'Zona Cercana / Centro', cost: 3.00 },
+            { name: 'Zona Intermedia', cost: 5.00 },
+            { name: 'Zona Lejana / Periferia', cost: 8.00 },
+            { name: 'Retiro en Tienda', cost: 0.00 }
+        ];
+
+        let cart = [];
+        let savedOrders = JSON.parse(localStorage.getItem('js_orders')) || [];
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            renderPagoMovilCards();
+            renderDeliveryZones();
+            initLeafletMap();
+            populateAdminData();
+            calculateCartTotals();
+        });
+
+        // 1. MAP & GPS LOCALIZATION (LEAFLET / HYBRID GOOGLE STYLING)
+        function initLeafletMap() {
+            // Default center: Caracas / Central coordinates
+            const defaultLat = 10.4806;
+            const defaultLng = -66.9036;
+
+            map = L.map('map', { zoomControl: true }).setView([defaultLat, defaultLng], 14);
+
+            // OpenStreetMap tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            // Custom draggable marker
+            marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+
+            // Update coords on marker drag end
+            marker.on('dragend', function (e) {
+                const position = marker.getLatLng();
+                updateLocationCoords(position.lat, position.lng, "Ubicación Manual (Arrastre de Pin)");
+            });
+
+            // CRITICAL: Allow direct click/tap anywhere on the map to set manual location
+            map.on('click', function(e) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+                marker.setLatLng([lat, lng]);
+                updateLocationCoords(lat, lng, "Ubicación Manual (Clic en Mapa)");
+            });
+        }
+
+        function updateLocationCoords(lat, lng, sourceLabel) {
+            document.getElementById('customerLat').value = lat;
+            document.getElementById('customerLng').value = lng;
+            document.getElementById('selectedCoords').innerText = `Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`;
+            document.getElementById('gpsStatusBadge').innerText = sourceLabel || 'Manual';
+        }
+
+        function getUserGPSLocation() {
+            if (navigator.geolocation) {
+                document.getElementById('gpsStatusBadge').innerText = "Obteniendo GPS...";
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const lat = pos.coords.latitude;
+                        const lng = pos.coords.longitude;
+                        map.setView([lat, lng], 16);
+                        marker.setLatLng([lat, lng]);
+                        updateLocationCoords(lat, lng, "GPS Automático Detectado");
+                    },
+                    (err) => {
+                        alert("No se pudo obtener la ubicación automáticamente. Por favor, selecciona tu punto tocando el mapa manualmente.");
+                        document.getElementById('gpsStatusBadge').innerText = "Manual";
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            } else {
+                alert("Navegador no soporta Geolocalización GPS.");
+            }
+        }
+
+        function searchManualAddress() {
+            const query = document.getElementById('mapSearchInput').value.trim();
+            if (!query) return;
+
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const lat = parseFloat(data[0].lat);
+                        const lon = parseFloat(data[0].lon);
+                        map.setView([lat, lon], 16);
+                        marker.setLatLng([lat, lon]);
+                        updateLocationCoords(lat, lon, `Manual: ${query.substring(0, 20)}...`);
+                    } else {
+                        alert("No se encontró la dirección especificada. Haz clic directamente en el mapa para fijarla.");
+                    }
+                })
+                .catch(() => alert("Error al buscar dirección. Por favor selecciona el punto manualmente en el mapa."));
+        }
+
+        // 2. PRODUCT CATALOGUE & CART MANAGEMENT
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '';
+
+            products.forEach(p => {
+                const isVideo = p.mediaType === 'video';
+                let mediaElement = isVideo 
+                    ? `<video src="${p.mediaUrl}" class="w-full h-32 object-cover rounded-t-xl" controls></video>`
+                    : `<img src="${p.mediaUrl}" class="w-full h-32 object-cover rounded-t-xl" alt="${p.title}" onerror="this.src='https://via.placeholder.com/300x200?text=JS+Creaciones'">`;
+
+                const adminControls = isAdminLoggedIn ? `
+                    <div class="flex justify-between items-center pt-2 border-t border-gray-800">
+                        <button onclick="openProductModal('${p.id}')" class="text-[10px] text-cyan-400 hover:underline"><i class="fas fa-edit"></i> Editar</button>
+                        <button onclick="deleteProduct('${p.id}')" class="text-[10px] text-red-400 hover:underline"><i class="fas fa-trash"></i> Borrar</button>
+                    </div>
+                ` : '';
+
+                grid.innerHTML += `
+                    <div class="bg-brandCard border border-gray-800 rounded-xl overflow-hidden shadow-lg flex flex-col justify-between p-2">
+                        <div>
+                            ${mediaElement}
+                            <h4 class="text-xs font-bold text-white mt-2 line-clamp-1">${p.title}</h4>
+                            <p class="text-xs font-extrabold text-yellow-400 mt-0.5">$${p.price.toFixed(2)}</p>
+                        </div>
+                        <div class="mt-2 space-y-1">
+                            <button onclick="addToCart('${p.id}')" class="w-full bg-pink-600 hover:bg-pink-500 text-white text-[11px] font-bold py-1.5 rounded-lg flex items-center justify-center space-x-1">
+                                <i class="fas fa-plus text-[9px]"></i> <span>Agregar</span>
+                            </button>
+                            ${adminControls}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function addToCart(productId) {
+            const prod = products.find(p => p.id === productId);
+            if (!prod) return;
+            cart.push(prod);
+            updateCartDisplay();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartDisplay();
+        }
+
+        function updateCartDisplay() {
+            const list = document.getElementById('cartItemsList');
+            document.getElementById('cartCountBadge').innerText = `${cart.length} items`;
+
+            if (cart.length === 0) {
+                list.innerHTML = `<p class="text-gray-500 text-center py-4">No has seleccionado artículos.</p>`;
+            } else {
+                list.innerHTML = '';
+                cart.forEach((item, idx) => {
+                    list.innerHTML += `
+                        <div class="flex justify-between items-center py-1.5">
+                            <div class="truncate max-w-[180px]">
+                                <span class="font-semibold text-white">${item.title}</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-yellow-400 font-bold">$${item.price.toFixed(2)}</span>
+                                <button onclick="removeFromCart(${idx})" class="text-red-400 text-xs px-1 hover:text-red-300">
+                                    <i class="fas fa-times-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            calculateCartTotals();
+        }
+
+        function renderDeliveryZones() {
+            const select = document.getElementById('deliveryZoneSelect');
+            select.innerHTML = '';
+            deliveryZones.forEach((z, idx) => {
+                select.innerHTML += `<option value="${idx}">${z.name} - $${z.cost.toFixed(2)}</option>`;
+            });
+        }
+
+        function calculateCartTotals() {
+            const subtotal = cart.reduce((acc, item) => acc + item.price, 0);
+            const zoneIdx = document.getElementById('deliveryZoneSelect').value || 0;
+            const deliveryCost = deliveryZones[zoneIdx] ? deliveryZones[zoneIdx].cost : 0;
+            const total = subtotal + deliveryCost;
+
+            document.getElementById('summarySubtotal').innerText = `$${subtotal.toFixed(2)}`;
+            document.getElementById('summaryDeliveryCost').innerText = `$${deliveryCost.toFixed(2)}`;
+            document.getElementById('summaryTotal').innerText = `$${total.toFixed(2)}`;
+        }
+
+        // 3. PAGO MOVIL DISPLAY & COPY
+        function renderPagoMovilCards() {
+            const container = document.getElementById('pagoMovilCardsContainer');
+            container.innerHTML = `
+                <!-- Account 1 -->
+                <div class="bg-black/60 p-3 rounded-xl border border-pink-500/30 relative">
+                    <div class="text-[10px] uppercase font-bold text-pink-400 mb-1">Opción Pago Móvil #1</div>
+                    <p class="text-xs text-white"><b>Banco:</b> ${pagoMovilData.pm1.bank}</p>
+                    <p class="text-xs text-white"><b>Teléfono:</b> ${pagoMovilData.pm1.phone}</p>
+                    <p class="text-xs text-white"><b>Cédula/RIF:</b> ${pagoMovilData.pm1.id}</p>
+                    <button onclick="copyPagoMovil(1)" class="mt-2 text-[10px] bg-pink-950 text-pink-300 border border-pink-800 px-2 py-1 rounded-lg">
+                        <i class="fas fa-copy"></i> Copiar Datos
+                    </button>
+                </div>
+
+                <!-- Account 2 -->
+                <div class="bg-black/60 p-3 rounded-xl border border-cyan-500/30 relative">
+                    <div class="text-[10px] uppercase font-bold text-cyan-400 mb-1">Opción Pago Móvil #2</div>
+                    <p class="text-xs text-white"><b>Banco:</b> ${pagoMovilData.pm2.bank}</p>
+                    <p class="text-xs text-white"><b>Teléfono:</b> ${pagoMovilData.pm2.phone}</p>
+                    <p class="text-xs text-white"><b>Cédula/RIF:</b> ${pagoMovilData.pm2.id}</p>
+                    <button onclick="copyPagoMovil(2)" class="mt-2 text-[10px] bg-cyan-950 text-cyan-300 border border-cyan-800 px-2 py-1 rounded-lg">
+                        <i class="fas fa-copy"></i> Copiar Datos
+                    </button>
+                </div>
+            `;
+        }
+
+        function copyPagoMovil(num) {
+            const acc = num === 1 ? pagoMovilData.pm1 : pagoMovilData.pm2;
+            const text = `JS CREACIONES PAGO MOVIL:\nBanco: ${acc.bank}\nTeléfono: ${acc.phone}\nID: ${acc.id}`;
+            navigator.clipboard.writeText(text);
+            alert("¡Datos de Pago Móvil copiados al portapapeles!");
+        }
+
+        // 4. WHATSAPP DISPATCH & ORDER RECORDING
+        function sendOrderToWhatsApp() {
+            if (cart.length === 0) {
+                alert("Por favor agrega al menos un producto al carrito.");
+                return;
+            }
+
+            const name = document.getElementById('custName').value.trim();
+            const lastName = document.getElementById('custLastName').value.trim();
+            const phone = document.getElementById('custPhone').value.trim();
+            const note = document.getElementById('custAddressNote').value.trim();
+            const lat = document.getElementById('customerLat').value;
+            const lng = document.getElementById('customerLng').value;
+
+            if (!name || !lastName || !phone) {
+                alert("Por favor completa tu Nombre, Apellido y Teléfono.");
+                return;
+            }
+
+            const subtotal = cart.reduce((acc, item) => acc + item.price, 0);
+            const zoneIdx = document.getElementById('deliveryZoneSelect').value || 0;
+            const zone = deliveryZones[zoneIdx];
+            const total = subtotal + zone.cost;
+
+            const itemsText = cart.map((c, i) => `${i + 1}. ${c.title} ($${c.price.toFixed(2)})`).join('\n');
+            const mapLink = `https://www.google.com/maps?q=${lat},${lng}`;
+
+            const orderMsg = 
+`✨ *NUEVO PEDIDO - JS CREACIONES* ✨
+--------------------------------
+👤 *Cliente:* ${name} ${lastName}
+📞 *Teléfono:* ${phone}
+📍 *Punto Referencia:* ${note || 'No especificado'}
+🗺️ *Ubicación GPS / Mapa:* ${mapLink}
+
+🛍️ *DETALLE DEL PEDIDO:*
+${itemsText}
+
+--------------------------------
+🔹 *Subtotal:* $${subtotal.toFixed(2)}
+🚚 *Delivery (${zone.name}):* $${zone.cost.toFixed(2)}
+⭐ *TOTAL A PAGAR:* $${total.toFixed(2)}
+--------------------------------
+Quedo a la espera para coordinar el pago. ¡Gracias!`;
+
+            // Save order to Admin local database
+            const newOrder = {
+                date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                client: `${name} ${lastName}`,
+                phone: phone,
+                gpsUrl: mapLink,
+                total: `$${total.toFixed(2)}`
+            };
+            savedOrders.unshift(newOrder);
+            localStorage.setItem('js_orders', JSON.stringify(savedOrders));
+            renderAdminOrdersTable();
+
+            // Redirect to WhatsApp
+            const targetPhone = "584120000000"; // Replace with store WhatsApp
+            const waUrl = `https://wa.me/${targetPhone}?text=${encodeURIComponent(orderMsg)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        // 5. SECURE ADMIN PIN LOGIC
+        function toggleAdminAuthModal() {
+            if (isAdminLoggedIn) {
+                // If logged in, button serves as toggle to scroll to admin or logout
+                document.getElementById('adminSection').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                document.getElementById('adminAuthModal').classList.toggle('hidden');
+            }
+        }
+
+        function verifyAdminPin() {
+            const input = document.getElementById('adminPinInput').value;
+            if (input === ADMIN_PIN) {
+                isAdminLoggedIn = true;
+                document.getElementById('adminAuthModal').classList.add('hidden');
+                document.getElementById('adminSection').classList.remove('hidden');
+                document.getElementById('adminAddProductBtn').classList.remove('hidden');
+                document.getElementById('adminBtnLabel').innerText = "Admin Activo";
+                renderProducts();
+                renderAdminOrdersTable();
+                document.getElementById('adminSection').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert("PIN incorrecto. Acceso denegado.");
+            }
+        }
+
+        function logoutAdmin() {
+            isAdminLoggedIn = false;
+            document.getElementById('adminSection').classList.add('hidden');
+            document.getElementById('adminAddProductBtn').classList.add('hidden');
+            document.getElementById('adminBtnLabel').innerText = "Admin";
+            renderProducts();
+        }
+
+        // 6. ADMIN MODALS & EDITING FUNCTIONS
+        function openProductModal(id = null) {
+            document.getElementById('productEditModal').classList.remove('hidden');
+            if (id) {
+                const prod = products.find(p => p.id === id);
+                document.getElementById('modalProductTitle').innerText = "Editar Producto";
+                document.getElementById('editProductId').value = prod.id;
+                document.getElementById('prodTitle').value = prod.title;
+                document.getElementById('prodPrice').value = prod.price;
+                document.getElementById('prodMediaUrl').value = prod.mediaUrl;
+                document.getElementById('prodMediaType').value = prod.mediaType;
+            } else {
+                document.getElementById('modalProductTitle').innerText = "Agregar Nuevo Producto";
+                document.getElementById('editProductId').value = '';
+                document.getElementById('prodTitle').value = '';
+                document.getElementById('prodPrice').value = '';
+                document.getElementById('prodMediaUrl').value = '';
+                document.getElementById('prodMediaType').value = 'image';
+            }
+        }
+
+        function closeProductModal() {
+            document.getElementById('productEditModal').classList.add('hidden');
+        }
+
+        function saveProductFromModal() {
+            const id = document.getElementById('editProductId').value;
+            const title = document.getElementById('prodTitle').value.trim();
+            const price = parseFloat(document.getElementById('prodPrice').value);
+            const mediaUrl = document.getElementById('prodMediaUrl').value.trim();
+            const mediaType = document.getElementById('prodMediaType').value;
+
+            if (!title || isNaN(price) || !mediaUrl) {
+                alert("Por favor completa todos los campos del producto.");
+                return;
+            }
+
+            if (id) {
+                const idx = products.findIndex(p => p.id === id);
+                if (idx !== -1) {
+                    products[idx] = { id, title, price, mediaUrl, mediaType };
+                }
+            } else {
+                products.push({
+                    id: Date.now().toString(),
+                    title, price, mediaUrl, mediaType
+                });
+            }
+
+            localStorage.setItem('js_products', JSON.stringify(products));
+            renderProducts();
+            closeProductModal();
+        }
+
+        function deleteProduct(id) {
+            if (confirm("¿Estás seguro de eliminar este artículo?")) {
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('js_products', JSON.stringify(products));
+                renderProducts();
+            }
+        }
+
+        function populateAdminData() {
+            document.getElementById('adminPm1Bank').value = pagoMovilData.pm1.bank;
+            document.getElementById('adminPm1Phone').value = pagoMovilData.pm1.phone;
+            document.getElementById('adminPm1Id').value = pagoMovilData.pm1.id;
+
+            document.getElementById('adminPm2Bank').value = pagoMovilData.pm2.bank;
+            document.getElementById('adminPm2Phone').value = pagoMovilData.pm2.phone;
+            document.getElementById('adminPm2Id').value = pagoMovilData.pm2.id;
+        }
+
+        function saveAdminPagoMovil() {
+            pagoMovilData.pm1.bank = document.getElementById('adminPm1Bank').value;
+            pagoMovilData.pm1.phone = document.getElementById('adminPm1Phone').value;
+            pagoMovilData.pm1.id = document.getElementById('adminPm1Id').value;
+
+            pagoMovilData.pm2.bank = document.getElementById('adminPm2Bank').value;
+            pagoMovilData.pm2.phone = document.getElementById('adminPm2Phone').value;
+            pagoMovilData.pm2.id = document.getElementById('adminPm2Id').value;
+
+            localStorage.setItem('js_pago_movil', JSON.stringify(pagoMovilData));
+            renderPagoMovilCards();
+            alert("¡Cuentas de Pago Móvil actualizadas con éxito!");
+        }
+
+        function renderAdminOrdersTable() {
+            const tbody = document.getElementById('adminOrdersTableBody');
+            tbody.innerHTML = '';
+
+            if (savedOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-gray-500">No hay registros de pedidos.</td></tr>`;
+                return;
+            }
+
+            savedOrders.forEach(o => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-2 truncate max-w-[80px]">${o.date}</td>
+                        <td class="p-2 font-semibold text-white">${o.client}</td>
+                        <td class="p-2">${o.phone}</td>
+                        <td class="p-2"><a href="${o.gpsUrl}" target="_blank" class="text-pink-400 underline"><i class="fas fa-map-marker-alt"></i> Ver Mapa</a></td>
+                        <td class="p-2 font-bold text-yellow-400">${o.total}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function clearOrdersTable() {
+            if (confirm("¿Deseas borrar el historial de pedidos en la tabla?")) {
+                savedOrders = [];
+                localStorage.removeItem('js_orders');
+                renderAdminOrdersTable();
+            }
+        }
+    </script>
+</body>
+</html>
